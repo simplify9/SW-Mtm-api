@@ -62,7 +62,7 @@ namespace SW.Mtm.Sdk
         {
             return await Builder
                 .Jwt()
-                .Path($"accounts/${accountId}/Deactivate")
+                .Path($"accounts/{accountId}/Deactivate")
                 .AsApiResult()
                 .PostAsync(request);
         }
