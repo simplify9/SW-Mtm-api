@@ -1,0 +1,57 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, 'releases/*']
+  workflow_dispatch:
+
+jobs:
+  cicd:
+    uses: simplify9/.github/.github/workflows/sw-cicd.yml@main
+    with:
+      # Version configuration
+      major-version: '6'
+      minor-version: '0'
+      
+      # .NET configuration
+      dotnet-version: '6.0.x'
+      nuget-projects: 'SW.Mtm.Sdk/SW.Mtm.Sdk.csproj'
+      run-tests: 'true'
+      test-projects: 'SW.Mtm.UnitTests/SW.Mtm.UnitTests.csproj'
+      
+      # Docker configuration
+      dockerfile-path: './Dockerfile'
+      docker-context: '.'
+      
+      # Helm configuration
+      chart-name: 'mtm'
+      chart-path: './charts/default'
+      
+      # Deployment configuration
+      deploy-to-development: true
+      development-namespace: 'playground'
+      
+      # Registry configuration
+      container-registry: 'ghcr.io'
+      image-name: 'simplify9/mtm'
+      
+      # Helm values for deployment
+      helm-set-values: 'ingress.enabled=true,replicas=1,ingress.hosts={mtm.sf9.io},environment="Staging",ingress.path="/api",ingress.tls[0].secretName="mtm-tls",ingress.annotations."cert-manager\.io/cluster-issuer"="letsencrypt-nginx",dbType="PgSql"'
+      
+    secrets:
+      # NuGet secrets
+      nuget-api-key: ${{ secrets.SWNUGETKEY }}
+      nuget-source: 'https://api.nuget.org/v3/index.json'
+      
+      # Container registry (using GitHub packages)
+      registry-username: ${{ github.actor }}
+      registry-password: ${{ secrets.GITHUB_TOKEN }}
+      
+      # Kubernetes
+      kubeconfig: ${{ secrets.S9Dev_KUBECONFIG }}
+      
+      # GitHub token for tagging
+      github-token: ${{ secrets.S9_GITHUB_TOKEN }}
+      
+      # Helm secret values
+      helm-set-secret-values: 'db=${{ secrets.DBCS }}'
