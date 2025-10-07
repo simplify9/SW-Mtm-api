@@ -36,7 +36,7 @@ jobs:
       image-name: 'simplify9/mtm'
       
       # Helm values for deployment
-      helm-set-values: 'ingress.enabled=true,replicas=1,ingress.hosts={mtm.sf9.io},environment="Staging",ingress.path="/api",ingress.tls[0].secretName="mtm-tls",ingress.annotations."cert-manager\.io/cluster-issuer"="letsencrypt-nginx",dbType="PgSql"'
+      helm-set-values: 'ingress.enabled=true,replicas=1,ingress.hosts={mtm.sf9.io},environment="Staging",ingress.path="/api",ingress.tls[0].secretName="mtm-tls",dbType="PgSql"'
       
     secrets:
       # NuGet secrets
@@ -54,4 +54,4 @@ jobs:
       github-token: ${{ secrets.S9_GITHUB_TOKEN }}
       
       # Helm secret values
-      helm-set-secret-values: 'db=${{ secrets.DBCS }}'
+      helm-set-secret-values: db=${{ secrets.DBCS }}
