@@ -13,6 +13,7 @@ using SW.CqApi;
 using SW.EfCoreExtensions;
 using SW.HttpExtensions;
 using SW.Logger;
+using SW.Logger.ElasticSerach;
 using SW.PrimitiveTypes;
 
 namespace SW.Mtm.Web

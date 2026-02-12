@@ -15,7 +15,7 @@ namespace SW.Mtm.Resources.Accounts
 {
     [HandlerName("login")]
     [Protect]
-    class Login : ICommandHandler<AccountLogin>
+    class Login : ICommandHandler<AccountLogin,object>
     {
         private readonly MtmDbContext dbContext;
         private readonly RequestContext requestContext;

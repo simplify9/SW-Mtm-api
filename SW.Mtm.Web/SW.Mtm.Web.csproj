@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
 
@@ -13,14 +13,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.11">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.24">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="EFCore.NamingConventions" Version="5.0.2" />
-    <PackageReference Include="SimplyWorks.CqApi" Version="5.0.1" />
-    <PackageReference Include="SimplyWorks.Logger" Version="5.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.11" />
+    <PackageReference Include="EFCore.NamingConventions" Version="8.0.3" />
+    <PackageReference Include="SimplyWorks.CqApi" Version="8.2.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.24" />
+      <PackageReference Include="SimplyWorks.Logger.ElasticSearch" Version="8.1.1" />
   </ItemGroup>
 
 </Project>
