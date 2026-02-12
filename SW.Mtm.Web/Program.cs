@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SW.EfCoreExtensions;
 using SW.Logger;
+using SW.Logger.ElasticSerach;
 
 namespace SW.Mtm.Web
 {
@@ -16,7 +17,7 @@ namespace SW.Mtm.Web
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).
-                UseSwLogger().
+                UseSwElasticSearchLogger().
                 Build().
                 MigrateDatabase<MtmDbContext>().
                 Run();

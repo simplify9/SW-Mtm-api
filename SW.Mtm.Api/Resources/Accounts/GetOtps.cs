@@ -9,7 +9,7 @@ using SW.Mtm.Model;
 namespace SW.Mtm.Resources.Accounts
 {
     [HandlerName("GetOtps")]
-    class GetOtps : IQueryHandler<GetOtpsModel>
+    class GetOtps : IQueryHandler<GetOtpsModel,object>
     {
         private readonly MtmDbContext _dbContext;
 
