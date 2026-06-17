@@ -1,57 +1,83 @@
 name: CI/CD Pipeline
+run-name: Run-${{ github.ref_name }}-${{ github.run_number }}
 
 on:
   push:
     branches: [main, 'releases/*']
   workflow_dispatch:
 
+concurrency:
+  group: cicd-gateway-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+# contents: write -> tag job. packages: write -> push the image to GHCR, publish
+# the Helm chart to GHCR OCI, and pull the OCI chart back for the deploy.
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   cicd:
-    uses: simplify9/.github/.github/workflows/sw-cicd.yml@main
+    if: ${{ github.event_name == 'workflow_dispatch' || github.ref_name == 'main' || startsWith(github.ref_name, 'releases/') }}
+    uses: simplify9/.github/.github/workflows/reusable-service-cicd.yml@main
     with:
-      # Version configuration
       major-version: '6'
       minor-version: '0'
-      
-      # .NET configuration
       dotnet-version: '8.0.x'
+
+      # Build + test + push the SDK NuGet package
       nuget-projects: 'SW.Mtm.Sdk/SW.Mtm.Sdk.csproj'
       run-tests: 'true'
       test-projects: 'SW.Mtm.UnitTests/SW.Mtm.UnitTests.csproj'
-      
-      # Docker configuration
+
       dockerfile-path: './Dockerfile'
       docker-context: '.'
-      
-      # Helm configuration
-      chart-name: 'mtm'
+
+      chart-name: 'mtm'                     # must match charts/default Chart.yaml name:
       chart-path: './charts/default'
-      
-      # Deployment configuration
-      deploy-to-development: true
-      development-namespace: 'playground'
-      
-      # Registry configuration
+
+      # 1) Publish the Helm chart to GHCR OCI only (as the old pipeline did)
+      chart-publish-method: 'github-oci'
+
+      # Image pushed to GHCR (kept as the old file had it).
+      # NOTE: the chart's deployment.yaml hardcodes the image as
+      # docker.io/simplify9/mtm:<chart-version> and ignores image.repository, so
+      # the deploy pulls from Docker Hub — NOT this freshly built GHCR image.
       container-registry: 'ghcr.io'
       image-name: 'simplify9/mtm'
-      
-      # Helm values for deployment
-      helm-set-values: 'ingress.enabled=true,replicas=1,ingress.hosts={mtm.sf9.io},environment="Staging",ingress.path="/api",ingress.tls[0].secretName="mtm-tls",dbType="PgSql"'
-      
+
+      # 2) Deploy to playground via Gateway API
+      deploy: true
+      # 3) Pull the chart from GHCR OCI (where we just published it)
+      deploy-chart-source: 'github-oci'
+      deploy-namespace: 'playground'
+      routing-mode: 'gateway-api'
+      gateway-hostnames: 'mtm.sf9.io'
+      gateway-paths: '/api'                 # adapted from the old ingress.path
+      # mtm.sf9.io IS a *.sf9.io host, so the deploy attaches it to the shared
+      # wildcard listener (sectionName https-wildcard-sf9-io) rather than onboarding
+      # a dedicated listener + cert — no per-host DNS/cert setup required.
+
+      # Non-routing chart values. The app environment is read from
+      # .Values.global.environment; the old file set the UNUSED top-level
+      # .Values.environment, so it effectively ran as Development (kept as-is).
+      # replicaCount defaults to 1. dbType selects the database provider.
+      helm-set-values: 'global.environment=Development,replicaCount=1,dbType=PgSql'
     secrets:
-      # NuGet secrets
-      nuget-api-key: ${{ secrets.SWNUGETKEY }}
-      nuget-source: 'https://api.nuget.org/v3/index.json'
-      
-      # Container registry (using GitHub packages)
+      # Image push to GHCR uses the built-in token (registry-password); the chart
+      # OCI push + pull use the built-in GITHUB_TOKEN inside the reusable.
       registry-username: ${{ github.actor }}
       registry-password: ${{ secrets.GITHUB_TOKEN }}
-      
-      # Kubernetes
-      kubeconfig: ${{ secrets.S9Dev_KUBECONFIG }}
-      
-      # GitHub token for tagging
+
+      # NuGet API key (publishes to nuget.org, the reusable's default feed)
+      nuget-api-key: ${{ secrets.SWNUGETKEY }}
+
+      # Gateway-API cluster kubeconfig (V2)
+      kubeconfig-gateway: ${{ secrets.S9DEV_KUBECONFIG_V2 }}
+
+      # Custom PAT used for git tagging only (the GHCR chart push/pull use the
+      # built-in GITHUB_TOKEN, so this PAT does not need write:packages).
       github-token: ${{ secrets.S9_GITHUB_TOKEN }}
-      
-      # Helm secret values
-      helm-set-secret-values: db=${{ secrets.DBCS }}
+
+      # App configuration passed to helm --set-string during deploy (masked)
+      helm-set-secret-values: 'db=${{ secrets.DBCS }}'
