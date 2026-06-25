@@ -66,6 +66,10 @@ jobs:
       registry-username: ${{ github.actor }}
       registry-password: ${{ secrets.GITHUB_TOKEN }}
 
+      # ── Required for 'both' and 'chartmuseum' publish methods: ───────────────
+      chartmuseum-username: ${{ secrets.CM_USER }}
+      chartmuseum-password: ${{ secrets.CM_PASSWORD }}
+
       # NuGet API key (publishes to nuget.org, the reusable's default feed)
       nuget-api-key: ${{ secrets.SWNUGETKEY }}
 
