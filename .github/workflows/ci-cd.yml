@@ -31,9 +31,10 @@ jobs:
 
       chart-name: 'mtm'                     # must match charts/default Chart.yaml name:
       chart-path: './charts/default'
+      chart-repo-url: https://charts.sf9.io 
 
       # 1) Publish the Helm chart to GHCR OCI only (as the old pipeline did)
-      chart-publish-method: 'github-oci'
+      chart-publish-method: 'both'
 
       # Image pushed to GHCR (kept as the old file had it).
       # NOTE: the chart's deployment.yaml hardcodes the image as
