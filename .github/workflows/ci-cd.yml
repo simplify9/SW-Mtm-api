@@ -9,6 +9,7 @@ on:
 # contents: write -> tag job. packages: write -> push the image to GHCR, publish
 # the Helm chart to GHCR OCI, and pull the OCI chart back for the deploy.
 permissions:
+  security-events: read
   contents: write
   packages: write
 
