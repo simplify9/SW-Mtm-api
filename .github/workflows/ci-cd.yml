@@ -61,7 +61,11 @@ jobs:
       # .Values.global.environment; the old file set the UNUSED top-level
       # .Values.environment, so it effectively ran as Development (kept as-is).
       # replicaCount defaults to 1. dbType selects the database provider.
-      helm-set-values: 'global.environment=Development,replicaCount=1,dbType=PgSql'
+      helm-set-values: |
+        global.environment=Development,replicaCount=1,dbType=PgSql
+        resources.requests.cpu=25m
+        resources.requests.memory=176Mi
+        resources.limits.memory=352Mi
     secrets:
       # Image push to GHCR uses the built-in token (registry-password); the chart
       # OCI push + pull use the built-in GITHUB_TOKEN inside the reusable.
